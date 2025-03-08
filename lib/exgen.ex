@@ -2,7 +2,7 @@ defmodule Exgen do
   @moduledoc """
   Documentation for `Exgen`.
 
-  ### features
+  ### Features
   - `js` code blocks become embedded as `<script>` tags
   - `javascript` code blocks remain as code blocks
   - `::<name>` becomes a `canvas` tag with `id=<name>`

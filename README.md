@@ -35,6 +35,12 @@ I used to create the parse tree with **hgen**, however why re-invent the wheel w
 - earmark-parser
 - earmark
 
+### Building
+`mix deps.get && MIX_ENV=prod mix escript.build`
+
+### Running from CLI
+`Usage: exgen/hgen <input.md> [output.html] [header.html]`
+
 ### How is it done?
 **exgen** uses [earmark transforms](https://hexdocs.pm/earmark/Earmark.Transform.html) to transform the AST generated
 

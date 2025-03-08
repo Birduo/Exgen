@@ -24,3 +24,7 @@ exgen-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+exgen
+
+/lib/.elixir-tools/
