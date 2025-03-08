@@ -1,0 +1,4 @@
+%{
+  "earmark": {:hex, :earmark, "1.4.47", "7e7596b84fe4ebeb8751e14cbaeaf4d7a0237708f2ce43630cfd9065551f94ca", [:mix], [], "hexpm", "3e96bebea2c2d95f3b346a7ff22285bc68a99fbabdad9b655aa9c6be06c698f8"},
+  "earmark_parser": {:hex, :earmark_parser, "1.4.43", "34b2f401fe473080e39ff2b90feb8ddfeef7639f8ee0bbf71bb41911831d77c5", [:mix], [], "hexpm", "970a3cd19503f5e8e527a190662be2cee5d98eed1ff72ed9b3d1a3d466692de8"},
+}
