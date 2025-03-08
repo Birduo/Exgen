@@ -4,8 +4,8 @@ defmodule Exgen do
 
   ### Features
   - `js` code blocks become embedded as `<script>` tags
-  - `javascript` code blocks remain as code blocks
-  - `::<name>` becomes a `canvas` tag with `id=<name>`
+  - `javascript` code blocks stay as both code blocks and script tags
+  - `::<name>` becomes a `div` tag with `id=<name>`
   - `<a>` tags, if `css` or `js` will directly add the css/js code
   - by extension, pure links are no longer allowed
   """
@@ -39,34 +39,48 @@ defmodule Exgen do
 
     # `js` code blocks become embedded as `<script>` tags
     # `javascript` code blocks remain as code blocks
-    Enum.map(ast, fn
-      {"pre", _, [{"code", [{"class", "js"}], [code], _}], _} ->
-        {"script", [], [code], %{verbatim: true}}
-      {"p", _, ["::" <> name], _} ->
-        {"canvas", [{"id", name}], [], %{}}
-      {"a", attrs, content, meta} = a_tag ->
-        case Enum.find(attrs, fn {k, _} -> k == "href" end) do
-          {"href", href} ->
-            cond do
-              href =~ ~r/\.js$/ -> {
-                  "a", attrs, # content below includes script tag prepended with content
-                    [content, {"script", [{"src", href}], [], %{verbatim: true}}],
-                  meta
-              }
-              # href =~ ~r/\.js$/ -> {"script", [href], [a_tag], %{verbatim: true}}
-              href =~ ~r/\.css$/ -> {
-                  "a", attrs, # content below includes style tag prepended with content
-                    [content, {"link", [{"rel", "stylesheet"}, {"href", href}], [], %{verbatim: true}}],
-                  meta
-              }
-              # href =~ ~r/\.css$/ -> {"style", [href], [a_tag], %{verbatim: true}}
-              true -> a_tag
-            end
-          _ -> a_tag
+
+    Enum.map(ast, &transform_ast/1)
+  end
+
+  defp transform_ast({"pre", _, [{"code", [{"class", "js"}], [code], _}], _}) do
+    {"script", [], [code], %{verbatim: true}}
+  end
+
+  defp transform_ast({"pre", _, [{"code", [{"class", "javascript"}], [code], _}], _}) do
+    {"pre", [], [{"code", [{"class", "javascript"}], [code], %{}}, {"script", [], [code], %{verbatim: true}}], %{}}
+  end
+
+  defp transform_ast({"p", _, ["::" <> name], _}) do
+    {"div", [{"id", name}], [], %{}}
+  end
+
+  defp transform_ast({"a", attrs, content, meta} = a_tag) do
+    case Enum.find(attrs, fn {k, _} -> k == "href" end) do
+      {"href", href} ->
+        cond do
+          href =~ ~r/\.js$/ -> {
+              "a", attrs, # content below includes script tag prepended with content
+                [content, {"script", [{"src", href}], [], %{verbatim: true}}],
+              meta
+          }
+          href =~ ~r/\.css$/ -> {
+              "a", attrs, # content below includes style tag prepended with content
+                [content, {"link", [{"rel", "stylesheet"}, {"href", href}], [], %{verbatim: true}}],
+              meta
+          }
+          true -> a_tag
         end
-      other ->
-        other
-    end)
+      _ -> a_tag
+    end
+  end
+
+  defp transform_ast({tag, attrs, children, meta}) do
+    {tag, attrs, Enum.map(children, &transform_ast/1), meta}
+  end
+
+  defp transform_ast(other) do
+    other
   end
 
   @doc """
